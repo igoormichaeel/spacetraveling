@@ -51,12 +51,13 @@ export default function Post({ post }: PostProps): JSX.Element {
 
   const numberOfWords = post.data.content
     .map(subsection => {
-      const numberOfWordsOfHeading = subsection.heading.split(' ').length;
+      const numberOfWordsOfHeading = subsection.heading
+        ? subsection.heading.split(' ').length
+        : 0;
 
       const numberOfWordsOfBody = subsection.body
-        .map(
-          contentBody =>
-            contentBody.text.replace(/\n+|\n/g, ' ').split(' ').length
+        .map(contentBody =>
+          contentBody.text ? contentBody.text.split(' ').length : 0
         )
         .reduce((acc, current) => acc + current);
 
