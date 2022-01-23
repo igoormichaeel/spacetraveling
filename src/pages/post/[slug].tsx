@@ -1,14 +1,16 @@
 /* eslint-disable react/no-danger */
+import Link from 'next/link';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
 import ptBR from 'date-fns/locale/pt-BR';
 import { format } from 'date-fns';
+import { RichText } from 'prismic-dom';
+import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
-
-import { useRouter } from 'next/router';
-import { RichText } from 'prismic-dom';
 import { getPrismicClient } from '../../services/prismic';
+
+import Comments from '../../components/Comments';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
@@ -32,9 +34,10 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, preview }: PostProps): JSX.Element {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -104,6 +107,18 @@ export default function Post({ post }: PostProps): JSX.Element {
               );
             })}
           </article>
+
+          <hr className={styles.divider} />
+
+          <Comments />
+
+          {preview && (
+            <aside>
+              <Link href="/api/exit-preview">
+                <a className={commonStyles.preview}>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
         </div>
       </main>
     </>
@@ -133,10 +148,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
-  const { slug } = context.params;
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const { slug } = params;
+  const response = await prismic.getByUID('posts', String(slug), {
+    ref: previewData?.ref || null,
+  });
 
   const post = {
     uid: response.uid,
@@ -158,7 +179,7 @@ export const getStaticProps: GetStaticProps = async context => {
   };
 
   return {
-    props: { post },
+    props: { post, preview },
     revalidate: 60 * 30, // 30 minutes
   };
 };

@@ -1,0 +1,24 @@
+.content {
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--heading);
+
+    margin: 4rem 0;
+  }
+
+  a {
+    font-weight: bold;
+    color: var(--highlight);
+
+    filter: brightness(0.9);
+
+    transition: filter 0.2s;
+
+    &:hover {
+      filter: brightness(1);
+    }
+  }
+}
