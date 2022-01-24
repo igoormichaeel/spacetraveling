@@ -54,8 +54,11 @@
   .postsInfo {
     margin: 1.5rem 0 4rem;
 
-    display: flex;
-    align-items: center;
+    .mainInfo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
 
     time,
     span {
@@ -70,6 +73,11 @@
     svg:first-child {
       margin-left: 0;
     }
+
+    em {
+      font-size: 0.875rem;
+      color: var(--info);
+    }
   }
 }
 
@@ -81,4 +89,43 @@
   background-color: var(--body);
 
   margin: 3.75rem 0 3rem;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 5rem;
+
+  div {
+    max-width: 50%;
+
+    & + div {
+      text-align: right;
+    }
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    color: var(--heading);
+
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--highlight);
+
+    filter: brightness(1);
+
+    transition: filter 0.2s;
+
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }
 }

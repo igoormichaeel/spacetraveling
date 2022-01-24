@@ -17,6 +17,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -35,22 +36,52 @@ interface Post {
 interface PostProps {
   post: Post;
   preview: boolean;
+  navigation: {
+    prevPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    } | null;
+    nextPost: {
+      uid: string;
+      data: {
+        title: string;
+      };
+    } | null;
+  };
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  preview,
+  navigation,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
   if (router.isFallback) {
     return <h1>Carregando...</h1>;
   }
 
-  const formattedDate = format(
-    new Date(post.first_publication_date),
-    'dd MMM yyyy',
-    {
-      locale: ptBR,
-    }
-  );
+  const formattedDates = {
+    first_publication_date: format(
+      new Date(post.first_publication_date),
+      'dd MMM yyyy',
+      {
+        locale: ptBR,
+      }
+    ),
+    edittedAt:
+      post.first_publication_date !== post.last_publication_date
+        ? format(
+            new Date(post.last_publication_date),
+            `dd MMM yyyy', às' HH:ss`,
+            {
+              locale: ptBR,
+            }
+          )
+        : null,
+  };
 
   const numberOfWords = post.data.content
     .map(subsection => {
@@ -86,12 +117,17 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
             <h1>{post.data.title}</h1>
 
             <div className={styles.postsInfo}>
-              <FiCalendar />
-              <time>{formattedDate}</time>
-              <FiUser />
-              <span>{post.data.author}</span>
-              <FiClock />
-              <span>{readingTime} min</span>
+              <div className={styles.mainInfo}>
+                <FiCalendar />
+                <time>{formattedDates.first_publication_date}</time>
+                <FiUser />
+                <span>{post.data.author}</span>
+                <FiClock />
+                <time>{readingTime} min</time>
+              </div>
+              {formattedDates.edittedAt && (
+                <em>* editado em {formattedDates.edittedAt}</em>
+              )}
             </div>
 
             {post.data.content.map(content => {
@@ -109,6 +145,30 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
           </article>
 
           <hr className={styles.divider} />
+
+          <nav className={styles.navigation}>
+            <div>
+              {navigation.prevPost && (
+                <>
+                  <h3>{navigation.prevPost.data.title}</h3>
+                  <Link href={`/post/${navigation.prevPost.uid}`}>
+                    <a>Post anterior</a>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            <div>
+              {navigation.nextPost && (
+                <>
+                  <h3>{navigation.nextPost.data.title}</h3>
+                  <Link href={`/post/${navigation.nextPost.uid}`}>
+                    <a>Próximo post</a>
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
 
           <Comments />
 
@@ -162,6 +222,7 @@ export const getStaticProps: GetStaticProps = async ({
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
@@ -178,8 +239,35 @@ export const getStaticProps: GetStaticProps = async ({
     },
   };
 
+  const prevPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'posts'),
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const navigation = {
+    prevPost: prevPost.results[0] ?? null,
+    nextPost: nextPost.results[0] ?? null,
+  };
+
   return {
-    props: { post, preview },
+    props: {
+      post,
+      preview,
+      navigation,
+    },
     revalidate: 60 * 30, // 30 minutes
   };
 };
