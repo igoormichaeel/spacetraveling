@@ -7,7 +7,7 @@
 
 ## About this project
 
-A application of a post page developed at [Rocketseat's](https://www.rocketseat.com.br/) _Ignite ReactJS_ course using ReactJS and NextJS. In this app everyone has access to all posts, each page has a navigation menu between posts and a comment area. Another feature is Prismic CMS's ability to preview posts before publishing.
+A application of a blog page developed at [Rocketseat's](https://www.rocketseat.com.br/) _Ignite ReactJS_ course using ReactJS and NextJS. In this app everyone has access to all posts, each page has a navigation menu between posts and a comment area. Another feature is Prismic CMS's ability to preview posts before publishing.
 
 This app was developed following Rocketseat's Ignite React Challenges [1](https://www.notion.so/Desafio-01-Criando-um-projeto-do-zero-b1a3645d286b4eec93f5f1f5476d0ff7) and [2](https://www.notion.so/Desafio-02-Adicionando-features-ao-blog-d466866c02544c79bbada9717c033d0a).
 
